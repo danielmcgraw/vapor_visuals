@@ -1,0 +1,104 @@
+</<!DOCTYPE html>
+<html lang="en" dir="ltr">
+	<head>
+		<meta charset="utf-8">
+		<title>Vapor Visuals</title>
+		<link rel="icon" type="image/png" href="favicon.png" sizes="32x32">
+		<style media="screen">
+			html,body{
+			    margin: 0;
+			    height: 100%;
+			    overflow: hidden;
+					background-color: #000;
+			}
+			video{
+			    min-height: 100%;
+			    min-width: 100%;
+			    height: auto;
+			    width: auto;
+			    position: absolute;
+			    top: -100%;
+					bottom: -100%;
+			    left: -100%;
+					right: -100%;
+			    margin: auto;
+			}
+			.bottomright {
+			  position: absolute;
+			  bottom: 8px;
+			  right: 16px;
+			}
+		</style>
+	</head>
+	<body>
+		<video id="video" muted loop src=""></video>
+		<script type="text/javascript">
+			const tags = [
+				'vaporwave',
+				'synthwave',
+				// '80s',
+				// 'palmtrees',
+				// 'robocop',
+				// 'nakatomi',
+				// 'gremlins',
+				// 'hackers',
+				// 'vhs',
+				'cyberpunk',
+				// 'beer',
+				// 'mushroom'
+				'dodecahedron',
+				'fractals',
+				'tessalations',
+				// 'liquid_light',
+				// 'hydro_dipping',
+				// 'escher'
+				// 'foodies',
+				// 'disco',
+				// 'helipad,'
+				'chill'
+				];
+			const getNewVideo = () => {
+				var xhr = new XMLHttpRequest();
+				xhr.onload = function () {
+					if (xhr.status >= 200 && xhr.status < 300) {
+						const resp = JSON.parse(xhr.responseText),
+									videoTag = document.getElementById('video');
+
+						console.log(resp.data);
+
+						videoTag.src = resp.data.image_mp4_url;
+						videoTag.play();
+						const rate = getRandomSpeed();
+						videoTag.playbackRate = rate;
+						console.log(rate);
+					} else {
+						// Runs when it's not
+						console.log('Shits Broke');
+						console.log(xhr.responseText);
+					}
+				}
+				xhr.open('GET', `http://api.giphy.com/v1/gifs/random?tag=${tags.join('+')}&api_key=54qJAlQLClXYpmY7XJhdpPJJUUCJlms7`);
+				xhr.send();
+			};
+
+			const getRandomInt = (min, max) => {
+				return Math.floor(Math.random() * (max - min + 1) + min);
+			};
+
+			const getRandomSpeed = () => {
+				return (Math.random() + 0.5).toFixed(2);
+			}
+
+			let timeout;
+			const play = () => {
+				clearTimeout(timeout);
+				timeout = setTimeout(() => {
+					getNewVideo();
+					play();
+				}, getRandomInt(60000, 180000));
+			}
+			getNewVideo();
+			play()
+		</script>
+	</body>
+</html>
