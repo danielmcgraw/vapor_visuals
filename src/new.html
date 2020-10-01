@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="utf-8">
 		<title>Vapor Visuals</title>
-		<link rel="icon" type="image/png" href="favicon.png" sizes="32x32">
+		<link rel="icon" type="image/png" href="../favicon.png" sizes="32x32">
 		<link href="https://fonts.googleapis.com/css2?family=Major+Mono+Display&display=swap" rel="stylesheet">
 		<style media="screen">
 			html,body{
@@ -48,62 +48,60 @@
 	<body>
 		<canvas id="animation" hidden></canvas>
 		<div id="creds" hidden>BiGBAbyPRofit</div>
-		<video id="video" muted loop src=""></video>
+		<video id="video1" class="active_video" muted loop src=""></video>
+		<video id="video2" class="hidden_video" muted loop hidden src=""></video>
 
 		<script type="text/javascript">
-			const tags = [
-				'vaporwave',
-				'synthwave',
-				// '80s',
-				'palmtrees',
-				// 'beach',
-				// 'robocop',
-				// 'nakatomi',
-				// 'gremlins',
-				// 'hackers',
-				// 'vhs',
-				'cassette',
-				'vinyl',
-				// 'cyberpunk',
-				// 'funk',
-				// 'beer',
-				// 'mushroom'
-				// 'dodecahedron',
-				'fractals',
-				'tessalations',
-				// 'surfing',
-				// 'kendama',
-				// 'liquid_light',
-				// 'hydro_dipping',
-				'escher',
-				'chillwave',
-				// 'foodies',
-				// 'disco',
-				// 'helipad,'
-				// 'chill',
-				// 'big_mac'
-				];
+			const keyMap = {
+				a: 'all',
+				b: 'blade_runner',
+				c: 'crt',
+				e: '80s',
+				f: 'fractal',
+				g: 'glitch',
+				h: 'hacking',
+				k: 'futurefunk',
+				n: 'neon_lights',
+				m: 'neon',
+				p: 'space',
+				s: 'synthwave',
+				u: 'futurism',
+				v: 'vaporwave',
+				y: 'cyber_punk',
+				z: 'clouds'
+			}
+			let folder = 'vaporwave';
 			const getNewVideo = () => {
 				var xhr = new XMLHttpRequest();
 				xhr.onload = function () {
 					if (xhr.status >= 200 && xhr.status < 300) {
-						const resp = JSON.parse(xhr.responseText),
-									videoTag = document.getElementById('video');
+						console.log(xhr);
+						const resp = JSON.parse(xhr.responseText);
+						const activeVideo = document.querySelector('.active_video');
+						const hiddenVideo = document.querySelector('.hidden_video');
 
 						console.log(resp.data);
 
-						videoTag.src = resp.data.image_mp4_url;
-						videoTag.play();
-						const rate = getRandomSpeed();
-						videoTag.playbackRate = rate;
-						console.log(rate);
+						hiddenVideo.src = resp.src;
+						hiddenVideo.play();
+						hiddenVideo.onplay = (event) => {
+							setTimeout(() => {
+								hiddenVideo.classList.add('active_video');
+								hiddenVideo.classList.remove('hidden_video');
+								hiddenVideo.hidden = false;
+								activeVideo.hidden = true;
+								activeVideo.classList.remove('active_video');
+								activeVideo.classList.add('hidden_video');
+								activeVideo.pause();
+							}, 300);
+						};
 					} else {
 						// Runs when it's not
 						console.log('Shits Broke');
 						console.log(xhr.responseText);
 					}
 				}
-				xhr.open('GET', `http://api.giphy.com/v1/gifs/random?tag=${tags.join('+')}&api_key=54qJAlQLClXYpmY7XJhdpPJJUUCJlms7`);
+				xhr.open('GET', `http://localhost:3000/visual?folder=${folder}`);
 				xhr.send();
 			};
 
@@ -111,35 +109,49 @@
 				return Math.floor(Math.random() * (max - min + 1) + min);
 			};
 
-			const getRandomSpeed = () => {
-				return (Math.random() + 0.5).toFixed(2);
-			}
-
 			let timeout;
 			const play = () => {
 				clearTimeout(timeout);
 				timeout = setTimeout(() => {
 					getNewVideo();
 					play();
-				}, getRandomInt(60000, 180000));
+				}, getRandomInt(3000, 12000));
 			}
 			getNewVideo();
 			play()
 
 			document.addEventListener("keydown", event => {
-				console.log(event)
-				if (event.code === "KeyQ") {
-					document.body.style.backgroundColor = "#000";
-					document.getElementById('video').hidden = false;
+				console.log(event);
+				const setFolder = (key) => {
+					if (keyMap[event.key]) {
+						folder = keyMap[event.key];
+						showVideo();
+					}
+				}
+				const showVideo = () => {
+					const activeVideo = document.querySelector('.active_video');
+					const hiddenVideo = document.querySelector('.hidden_video');
+					play();
+					activeVideo.hidden = false;
 					document.getElementById('animation').hidden = true;
 					document.getElementById('creds').hidden = true;
 				}
-				if (event.code === "Space") {
-					// document.body.style.backgroundColor = "#E4FF00";
-					// document.body.style.backgroundColor = "#FFF";
-					document.getElementById('video').hidden = true;
+				const showSplash = () => {
+					clearTimeout(timeout);
+					update()
+					const activeVideo = document.querySelector('.active_video');
+					const hiddenVideo = document.querySelector('.hidden_video');
+					activeVideo.pause();
+					activeVideo.hidden = true;
 					document.getElementById('animation').hidden = false;
 					document.getElementById('creds').hidden = false;
+				}
+				if (event.code === "KeyQ") {
+					showVideo();
+				} else if (event.code === "Space") {
+					showSplash();
+				} else {
+					setFolder(event.key);
 				}
 			})
 
@@ -269,7 +281,7 @@ gridY = 5;
 function shape(x, y, texte) {
 this.x = x;
 this.y = y;
-this.size = 700;
+this.size = 500;
 
 this.text = texte;
 this.placement = [];
@@ -460,7 +472,6 @@ message.placement[i].update();
 }
 requestAnimationFrame(update);
 }
-update()
 		</script>
 	</body>
 </html>
