@@ -1,0 +1,44 @@
+<html>
+<head>
+</head>
+<body id="body">
+	<script type="text/javascript">
+		var xhr = new XMLHttpRequest();
+
+		xhr.onload = function () {
+			if (xhr.status >= 200 && xhr.status < 300) {
+				console.log(xhr);
+				const resp = JSON.parse(xhr.responseText);
+				console.log(resp);
+				resp.forEach((data) => {
+					injectImage(data);
+				});
+			}
+		}
+
+		const params = new URLSearchParams(window.location.search)
+		params.get('folder')
+		xhr.open('GET', `http://localhost:3000/ls?folder=${params.get('folder')}`);
+		xhr.send();
+
+		const injectImage = (data) => {
+			var video = document.createElement("video");
+			video.src = data.src;
+			video.addEventListener("mouseenter", function() {
+			  video.play();
+			});
+			video.addEventListener("mouseleave", function() {
+  			video.pause();
+			});
+			video.addEventListener("click", function() {
+  			console.log(data.name);
+				var xhr = new XMLHttpRequest();
+				xhr.open('GET', `http://localhost:3000/rm?folder=${params.get('folder')}&file=${data.name}`);
+				xhr.send();
+			});
+			var src = document.getElementById("body");
+			src.appendChild(video);
+		}
+	</script>
+</body>
+</html>
